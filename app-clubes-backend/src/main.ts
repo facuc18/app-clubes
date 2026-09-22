@@ -16,11 +16,13 @@ async function bootstrap() {
   // módulo raíz.
   const app = await NestFactory.create(AppModule);
 
+  // Habilita CORS: sin esto, el navegador/apps bloquean las peticiones
+  // que vienen de un "origen" distinto (tu app corriendo en el celular
+  // o en el navegador pidiéndole datos a tu backend).
+  app.enableCors();
+
   // useGlobalPipes() aplica el pipe que le pasás a TODAS las rutas
   // de TODA la app, sin tener que repetirlo en cada controller.
-  // A partir de esta línea, cualquier @Body() que tenga un tipo DTO
-  // (como CrearClubDto) va a ser validado automáticamente contra
-  // sus decoradores de class-validator.
   app.useGlobalPipes(new ValidationPipe());
 
   // Pone al servidor a escuchar peticiones en el puerto 3000.
