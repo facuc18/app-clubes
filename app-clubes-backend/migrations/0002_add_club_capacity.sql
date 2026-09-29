@@ -1,0 +1,1 @@
+ALTER TABLE clubes ADD COLUMN cupo_maximo INTEGER;
