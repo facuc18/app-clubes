@@ -8,22 +8,36 @@ import {
   IsIn,
   IsArray,
   ValidateIf,
+  IsOptional,
+  IsInt,
+  Min,
+  ArrayMaxSize,
 } from 'class-validator';
 
 export class CrearClubDto {
   // Nombre del club: texto obligatorio.
   @IsString()
   @IsNotEmpty()
-  nombre: string;
+  nombre!: string;
 
   // Categorías: un array donde CADA elemento tiene que ser un string.
   @IsArray()
+  @ArrayMaxSize(3, { message: 'Un club puede tener como máximo 3 categorías' })
   @IsString({ each: true })
-  categorias: string[];
+  categorias!: string[];
 
   // Formato: solo puede ser uno de estos dos valores exactos.
   @IsIn(['fisico', 'virtual'])
-  formato: string;
+  formato!: string;
+
+  @IsOptional()
+  @IsString()
+  descripcion?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  cupoMaximo?: number;
 
   // Ubicación: acá está lo nuevo.
   // @ValidateIf((club) => club.formato === 'fisico') significa:
@@ -33,16 +47,20 @@ export class CrearClubDto {
   // podemos leer club.formato adentro de la función.
   // Si el formato es 'virtual', esta propiedad ni se revisa, puede
   // venir vacía o directamente no venir.
-  @ValidateIf((club) => club.formato === 'fisico')
+  @ValidateIf((club: CrearClubDto) => club.formato === 'fisico')
   @IsString()
   @IsNotEmpty()
   ubicacion?: string;
   // El "?" al final del nombre le dice a TypeScript que esta propiedad
   // es OPCIONAL (puede no existir), porque no siempre es obligatoria.
 
+  @IsOptional()
+  @IsString()
+  ciudad?: string;
+
   // Horario: un array de strings, mismo patrón que categorias.
   // Por ejemplo: ["lunes 18:00 a 20:00", "miercoles 18:00 a 20:00"]
   @IsArray()
   @IsString({ each: true })
-  horario: string[];
+  horario!: string[];
 }
