@@ -52,6 +52,34 @@ export class ClubesController {
     return this.clubesService.unirse(Number(id), request.user.id);
   }
 
+  @Get(':id/miembros/cantidad')
+  obtenerCantidadMiembros(@Param('id') id: string) {
+    return this.clubesService.obtenerCantidadMiembros(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/miembros')
+  obtenerMiembros(
+    @Param('id') id: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.clubesService.obtenerMiembros(Number(id), request.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/miembros/:usuarioId')
+  expulsarMiembro(
+    @Param('id') id: string,
+    @Param('usuarioId') usuarioId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.clubesService.expulsarMiembro(
+      Number(id),
+      request.user.id,
+      Number(usuarioId),
+    );
+  }
+
   @Get(':id')
   obtenerUno(@Param('id') id: string) {
     return this.clubesService.obtenerUno(Number(id));

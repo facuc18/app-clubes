@@ -9,7 +9,7 @@ import {
 import { and, eq, inArray } from 'drizzle-orm';
 import { LibSQLDatabase } from 'drizzle-orm/libsql';
 import * as schema from '../db/schema';
-import { clubMiembros, clubes } from '../db/schema';
+import { clubMiembros, clubes, usuarios } from '../db/schema';
 import { CrearClubDto } from './crear-club.dto';
 import { ActualizarClubDto } from './actualizar-club.dto';
 
@@ -99,6 +99,62 @@ export class ClubesService {
       unido: membresias.length > 0,
       esCreador: club.creadorId === usuarioId,
     };
+  }
+
+  async obtenerCantidadMiembros(id: number) {
+    const club = await this.obtenerUno(id);
+    const miembros = await this.db
+      .select({ id: clubMiembros.id })
+      .from(clubMiembros)
+      .where(eq(clubMiembros.clubId, id))
+      .all();
+
+    return {
+      cantidad: miembros.length + (club.creadorId === null ? 0 : 1),
+    };
+  }
+
+  async obtenerMiembros(id: number, usuarioId: number) {
+    const club = await this.obtenerUno(id);
+    if (club.creadorId !== usuarioId) {
+      throw new ForbiddenException('Solo el creador puede administrar los miembros.');
+    }
+
+    return this.db
+      .select({ id: usuarios.id, nombre: usuarios.nombre })
+      .from(clubMiembros)
+      .innerJoin(usuarios, eq(clubMiembros.usuarioId, usuarios.id))
+      .where(eq(clubMiembros.clubId, id))
+      .all();
+  }
+
+  async expulsarMiembro(id: number, creadorId: number, miembroId: number) {
+    const club = await this.obtenerUno(id);
+    if (club.creadorId !== creadorId) {
+      throw new ForbiddenException('Solo el creador puede expulsar miembros.');
+    }
+
+    const membresia = await this.db
+      .select({ id: clubMiembros.id })
+      .from(clubMiembros)
+      .where(
+        and(
+          eq(clubMiembros.clubId, id),
+          eq(clubMiembros.usuarioId, miembroId),
+        ),
+      )
+      .all();
+
+    if (membresia.length === 0) {
+      throw new NotFoundException('Ese usuario no es miembro del club.');
+    }
+
+    await this.db
+      .delete(clubMiembros)
+      .where(eq(clubMiembros.id, membresia[0].id))
+      .run();
+
+    return { eliminado: true };
   }
 
   async unirse(id: number, usuarioId: number) {
