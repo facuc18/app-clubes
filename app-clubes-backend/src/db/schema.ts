@@ -12,6 +12,7 @@ export const clubes = sqliteTable('clubes', {
   formato: text('formato').notNull(),
   descripcion: text('descripcion'),
   cupoMaximo: integer('cupo_maximo'),
+  foto: text('foto'),
   creadorId: integer('creador_id'),
   ubicacion: text('ubicacion'),
   ciudad: text('ciudad'),
@@ -24,6 +25,7 @@ export const usuarios = sqliteTable('usuarios', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   nombre: text('nombre').notNull(),
   email: text('email').notNull().unique(),
+  foto: text('foto'),
   // Acá NUNCA se guarda la contraseña real, se guarda su versión
   // "hasheada" (encriptada de forma irreversible) con bcrypt.
   password: text('password').notNull(),

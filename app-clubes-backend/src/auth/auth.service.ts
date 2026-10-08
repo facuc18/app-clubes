@@ -12,6 +12,7 @@ import * as schema from '../db/schema';
 import { usuarios } from '../db/schema';
 import { RegisterDto } from './register.dto';
 import { LoginDto } from './login.dto';
+import { ActualizarPerfilDto } from './actualizar-perfil.dto';
 
 @Injectable()
 export class AuthService {
@@ -109,6 +110,7 @@ export class AuthService {
         id: usuarios.id,
         nombre: usuarios.nombre,
         email: usuarios.email,
+        foto: usuarios.foto,
       })
       .from(usuarios)
       .where(eq(usuarios.id, usuarioId))
@@ -117,5 +119,22 @@ export class AuthService {
     const usuario = resultado[0];
     if (!usuario) throw new UnauthorizedException('La sesión ya no es válida.');
     return usuario;
+  }
+
+  async actualizarPerfil(usuarioId: number, datos: ActualizarPerfilDto) {
+    const resultado = await this.db
+      .update(usuarios)
+      .set({ foto: datos.foto ?? null })
+      .where(eq(usuarios.id, usuarioId))
+      .returning({
+        id: usuarios.id,
+        nombre: usuarios.nombre,
+        email: usuarios.email,
+        foto: usuarios.foto,
+      })
+      .all();
+
+    if (!resultado[0]) throw new UnauthorizedException('La sesión ya no es válida.');
+    return resultado[0];
   }
 }

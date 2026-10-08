@@ -1,0 +1,2 @@
+ALTER TABLE usuarios ADD COLUMN foto TEXT;
+ALTER TABLE clubes ADD COLUMN foto TEXT;

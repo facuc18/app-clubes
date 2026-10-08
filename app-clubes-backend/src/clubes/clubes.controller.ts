@@ -52,6 +52,12 @@ export class ClubesController {
     return this.clubesService.unirse(Number(id), request.user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/miembros')
+  abandonar(@Param('id') id: string, @Req() request: AuthenticatedRequest) {
+    return this.clubesService.abandonar(Number(id), request.user.id);
+  }
+
   @Get(':id/miembros/cantidad')
   obtenerCantidadMiembros(@Param('id') id: string) {
     return this.clubesService.obtenerCantidadMiembros(Number(id));

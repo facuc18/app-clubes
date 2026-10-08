@@ -1,6 +1,7 @@
 // NestFactory: la función que crea la aplicación Nest completa, uniendo
 // todos los módulos, controllers y providers de tu proyecto.
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 // ValidationPipe: la pieza que efectivamente REVISA cada petición
 // entrante contra las reglas definidas en tus DTOs (los decoradores
 // de class-validator que pusiste en crear-club.dto.ts).
@@ -14,7 +15,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   // Crea la instancia completa de la aplicación Nest, a partir del
   // módulo raíz.
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+  });
+
+  app.useBodyParser('json', { limit: '1mb' });
+  app.useBodyParser('urlencoded', { extended: true, limit: '1mb' });
 
   // Habilita CORS: sin esto, el navegador/apps bloquean las peticiones
   // que vienen de un "origen" distinto (tu app corriendo en el celular
