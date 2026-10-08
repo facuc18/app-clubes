@@ -68,6 +68,7 @@ export class ClubesService {
       nombre: datosNuevoClub.nombre,
       descripcion: datosNuevoClub.descripcion ?? null,
       cupoMaximo: datosNuevoClub.cupoMaximo ?? null,
+      foto: datosNuevoClub.foto ?? null,
       creadorId: usuarioId,
       categorias: datosNuevoClub.categorias.join(','),
       formato: datosNuevoClub.formato,
@@ -192,6 +193,35 @@ export class ClubesService {
 
     await this.db.insert(clubMiembros).values({ usuarioId, clubId: id }).run();
     return { unido: true };
+  }
+
+  async abandonar(id: number, usuarioId: number) {
+    const club = await this.obtenerUno(id);
+    if (club.creadorId === usuarioId) {
+      throw new ConflictException('El creador no puede abandonar su propio club.');
+    }
+
+    const membresia = await this.db
+      .select({ id: clubMiembros.id })
+      .from(clubMiembros)
+      .where(
+        and(
+          eq(clubMiembros.clubId, id),
+          eq(clubMiembros.usuarioId, usuarioId),
+        ),
+      )
+      .all();
+
+    if (membresia.length === 0) {
+      throw new NotFoundException('No pertenecés a este club.');
+    }
+
+    await this.db
+      .delete(clubMiembros)
+      .where(eq(clubMiembros.id, membresia[0].id))
+      .run();
+
+    return { unido: false };
   }
 
   async actualizarPropio(

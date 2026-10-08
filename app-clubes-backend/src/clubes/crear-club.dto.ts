@@ -12,6 +12,8 @@ import {
   IsInt,
   Min,
   ArrayMaxSize,
+  MaxLength,
+  Matches,
 } from 'class-validator';
 
 export class CrearClubDto {
@@ -38,6 +40,12 @@ export class CrearClubDto {
   @IsInt()
   @Min(1)
   cupoMaximo?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500_000)
+  @Matches(/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/)
+  foto?: string;
 
   // Ubicación: acá está lo nuevo.
   // @ValidateIf((club) => club.formato === 'fisico') significa:
